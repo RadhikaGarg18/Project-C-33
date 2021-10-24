@@ -1,100 +1,98 @@
-const Engine = Matter.Engine;
-const World = Matter.World;
-const Bodies = Matter.Bodies;
-const Body = Matter.Body;
-const Render = Matter.Render;
-const Constraint=Matter.Constraint;
+var Engine = Matter.Engine,
+  World = Matter.World,
+  Events = Matter.Events,
+  Bodies = Matter.Bodies;
+ 
+var particles = [];
+var plinkos = [];
+var divisions = [];
 
-var treeObj, stoneObj,groundObject, launcherObject;
-var mango1,mango2,mango3,mango4,mango5,mango6,mango7,mango8,mango9,mago10;
-var world,boy;
-var stone;
-
-function preload(){
-	boy=loadImage("images/boy.png");
-}
+var divisionHeight=300;
+var score =0;
+var particle;
+var count = 0;
+var gameState = "play";
 
 function setup() {
-	createCanvas(1300, 600);
-	engine = Engine.create();
-	world = engine.world;
 
-	mango1=new mango(1000,100,30);
-	mango2=new mango(1200,160,30);
-	mango3=new mango(1100,200,30);
-	mango4=new mango(1100,100,30);
-	mango5=new mango(900,220,30);
-	mango6=new mango(1100,250,30);
-	mango7=new mango(1000,250,30);
-  mango8=new mango(980,180,30);
-  mango9=new mango(1220,225,30);
-  mango10=new mango(1070,40,30)
+  createCanvas(800, 800);
+  engine = Engine.create();
+  world = engine.world;
+  ground = new Ground(width/2,height,width,20);
 
-	treeObj=new tree(1050,580);
-
-	groundObject=new ground(width/2,600,width,20);
-
-	stone = new Stone(220,400,40,40);
-	
-  rope =new Rope(stone.body,{x: 240 , y: 420});
-	
-	Engine.run(engine);
-}
-
+  for (var k = 0; k <=width; k = k + 80) {
+     divisions.push(new Divisions(k, height-divisionHeight/2, 10, divisionHeight));
+   }
+  for (var j = 75; j <=width; j=j+50){
+     plinkos.push(new Plinko(j,75));
+   }
+   for (var j = 50; j <=width-10; j=j+50){
+     plinkos.push(new Plinko(j,175));
+   }
+   for (var j = 75; j <=width; j=j+50){
+     plinkos.push(new Plinko(j,275));
+   }
+   for (var j = 50; j <=width-10; j=j+50){
+     plinkos.push(new Plinko(j,375));
+   }
+  }
+ 
 function draw() {
 
-  background(230);
+  background("black");
+
+  textSize(20)
+  text("Score : " + score,20,30);
+  text("500", 20,550);
+  text("500", 100,550);
+  text("500", 180,550);
+  text("500", 260,550);
+  text("100", 340,550);
+  text("100", 420,550);
+  text("100", 500,550);
+  text("200", 580,550);
+  text("200", 660,550);
+  text("200", 740,550);
+
   Engine.update(engine);
-  //Add code for displaying text here!
-  text("press the space key to play again!",10,10)
-  image(boy ,200,340,200,300);
-  
-  treeObj.display();
-  mango1.display();
-  mango2.display();
-  mango3.display();
-  mango4.display();
-  mango5.display();
-  mango6.display();
-  mango7.display();
-  mango8.display();
-  mango9.display();
-  mango10.display();
-
-  groundObject.display();
-
-  stone.display();
-
-  rope.display();
-
-  detectCollision(stone,mango1);
-  detectCollision(stone,mango2);
-  detectCollision(stone,mango3);
-  detectCollision(stone,mango4);
-  detectCollision(stone,mango5);
-  detectCollision(stone,mango6);
-  detectCollision(stone,mango7);
-  detectCollision(stone,mango8);
-  detectCollision(stone,mango9);
-  detectCollision(stone,mango10);
-}
-function mouseDragged(){
-    Matter.Body.setPosition(stone.body, {x: mouseX, y: mouseY});
-}
-function mouseReleased(){
-    rope.fly();
-}
-function keyPressed(){
-  if(keyCode === 32){
-    rope.attach(stone.body);
+ 
+  for (var i = 0; i < plinkos.length; i++) {
+    plinkos[i].display();
   }
-}
-function detectCollision(lstone,lmango){
-  MangoBodyPosition = lmango.body.position;
-  StoneBodyPosition = lstone.body.position;
-
-  var distance = dist(StoneBodyPosition.x,StoneBodyPosition.y,MangoBodyPosition.x,MangoBodyPosition.y)
-  if(distance<=lmango.r+lstone.r){
-  Matter.Body.setStatic(lmango.body,false);
+  if(frameCount%60===0){
+    particles.push(new Particle(random(width/2-30, width/2+30), 10,10));
+    score++;
+  }
+  for (var j = 0; j < particles.length; j++) {
+    particles[j].display();
+  }
+  for (var k = 0; k < divisions.length; k++) {
+    divisions[k].display();
+  }
+  if(particle !== null){
+    particle.display();
+      if(particle.body.position.y>760){
+      if(particle.body.position.x < 300){
+        score = score+500;
+        particle = null;
+      }
+      if(particle.body.position.x > 301 && particle.body.position.x<600){
+        score = score+100;
+        particle = null;
+      }
+      if(particle.body.position.x > 601 && particle.body.position.x<900){
+        score = score+200;
+        particle = null;
+      }
+    }
+  }
+  if(count>=5){
+    gameState = "end";
+    text("Game Over", 200, 400);
+  }
+ }
+function mousePressed(){
+  if(gameState !== "end"){
+    particle = new Particle(MouseX,10,10,10);
   }
 }
