@@ -61,7 +61,7 @@ function draw() {
   }
   if(frameCount%60===0){
     particles.push(new Particle(random(width/2-30, width/2+30), 10,10));
-    score++;
+   // score++;
   }
   for (var j = 0; j < particles.length; j++) {
     particles[j].display();
@@ -69,7 +69,7 @@ function draw() {
   for (var k = 0; k < divisions.length; k++) {
     divisions[k].display();
   }
-  if(particle !== null){
+  if(particle != null){
     particle.display();
       if(particle.body.position.y>760){
       if(particle.body.position.x < 300){
